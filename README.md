@@ -7,7 +7,7 @@ Getting Started
 ===============
 
 Download this with git or as a
-[zip](ihttps://github.com/chid/rip3bin/archive/master.zip)
+[zip](https://github.com/chid/rip3bin/archive/master.zip)
 
 Run run_all.cmd and it will start, go to http://localhost:7000 to use
 
