@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="description" content="Download imgur albums in their entirety. This ripper will grab the highest-quality versions of the images and retain the sort order. Works within the browser -- no download required.">
+		<meta name="author" content="4_pr0n">
+		<link rel="shortcut icon" href="ui/images/favicon.ico">
+
+		<title>rip.rarchives</title>
+
+		<link href="./ui/css/bootstrap.css" rel="stylesheet">
+		<link href="./ui/css/custom.css" rel="stylesheet">
+
+		<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+		<!--[if lt IE 9]>
+		<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+		<script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<!-- Navigation bar -->
+		<div class="navbar navbar-fixed-top navbar-inverse" role="navigation">
+			<div class="container">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<a class="navbar-brand" href="#">rip.rarchives</a>
+				</div>
+				<div class="collapse navbar-collapse">
+					<ul class="nav navbar-nav">
+						<li><a href="#"       id="nav-rip"><span class="glyphicon glyphicon-cloud-download"></span> rip</a></li>
+						<li><a href="#albums" id="nav-albums"><span class="glyphicon glyphicon-picture"></span> albums</a></li>
+						<li><a href="#video"  id="nav-video"><span class="glyphicon glyphicon-film"></span> video</a></li>
+						<li><a href="#stats"  id="nav-stats"><span class="glyphicon glyphicon-stats"></span> stats</a></li>
+
+						<!-- ABOUT -->
+						<li class="dropdown">
+						<a class="dropdown-toggle" data-toggle="dropdown" id="nav-about">
+							<span class="glyphicon glyphicon-info-sign"></span> about
+							<b class="caret"></b>
+						</a>
+						<ul class="dropdown-menu">
+							<li><a href="#site" id="view-about-site"><i class="icon-list-alt"></i> about this site</a></li>
+							<li><a href="#terms" id="view-about-mods"><i class="icon-list-alt"></i> terms of service</a></li>
+							<li class="divider"></li>
+							<li><a href="#removal" id="view-about-mods"><i class="icon-list-alt"></i> content removal</a></li>
+							<li class="divider"></li>
+							<li><a href="#code" id="view-about-code"><i class="icon-list-alt"></i> open-source</a></li>
+						</ul>
+					</ul>
+
+				</div> <!-- /.nav-collapse -->
+			</div> <!-- /.container -->
+		</div> <!-- /.navbar -->
+
+		<div id="page-"></div>
+		<!-- Rip page -->
+		<div id="page-rip" style="display: none">
+			<div class="jumbotron">
+				<div class="container text-center">
+					<h1 class="title"><span class="glyphicon glyphicon-cloud-download"></span><br> album ripper</h1>
+					<p class="text-center"> view and download albums hosted on various websites
+					<div class="input-group input-group-md">
+						<span class="input-group-btn">
+							<button id="button-rip-album" class="btn btn-primary" type="button">
+								<span class="glyphicon glyphicon-cloud-download"></span>
+								<strong>rip</strong>
+							</button>
+						</span>
+						<input type="text" id="text-rip-album" class="form-control" placeholder="http://imgur.com/a/RDxNa" autocomplete="off" value="">
+					</div> <!-- /input-group -->
+					<div class="statusbar" id="status-rip-album">&nbsp;</div>
+				</div> <!-- /container -->
+			</div> <!-- /jumbotron -->
+
+			<div class="container">
+					<h2 class="text-center">supported sites</h2>
+					<div class="container text-center" id="supported-album">
+						<!-- To be populated iwth status.html via javascript -->
+					</div>
+			</div> <!-- /container -->
+		</div> <!-- /#page-rip -->
+
+		<!-- Albums page (multiple) -->
+		<div id="albums-image"></div> <!-- for displaying images from album previews -->
+		<div id="page-albums" style="display: none">
+			<div class="jumbotron" style="margin-bottom: 10px">
+				<div class="container text-center">
+					<h1 class="title"><span class="glyphicon glyphicon-picture"></span> <br>ripped albums</h1>
+				</div> <!-- /container -->
+			</div> <!-- /jumbotron -->
+
+			<div class="container" style="margin-bottom: 10px; margin-top: -20px">
+				<!-- Filter -->
+				<div class="col-xs-12 col-sm-4 text-center">
+					<h3 class="glyphicon glyphicon-filter" style="vertical-align: bottom"></h3>
+					<div class="btn-group">
+						<button id="filter-button" filtername="none" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+							no filter <span class="caret"></span>
+						</button>
+						<ul id="album-filter" class="dropdown-menu text-left" role="menu">
+							<li role="presentation" class="dropdown-header">filter by:</li>
+							<li><a id="albums-filter-none" filtername="none">no filter</a></li>
+							<li class="divider"></li>
+							<li><a id="albums-filter-mine" filtername="mine">my rips</a></li>
+							<li class="divider"></li>
+						</ul>
+					</div>
+				</div>
+
+				<!-- Sort -->
+				<div class="col-xs-12 col-sm-4 text-center">
+					<h3 class="glyphicon glyphicon-sort" style="vertical-align: bottom"></h3>
+					<div class="btn-group">
+						<button id="sort-button" filtername="accessed" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+							last-viewed <span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu text-left" role="menu">
+							<li role="presentation" class="dropdown-header">sort by:</li>
+							<li><a id="albums-sort-accessed" filtername="accessed">last-viewed</a></li>
+							<li><a id="albums-sort-created" filtername="created">created</a></li>
+							<li><a id="albums-sort-views" filtername="views">views</a></li>
+							<li><a id="albums-sort-count" filtername="count">size</a></li>
+						</ul>
+					</div>
+				</div>
+
+				<!-- Order -->
+				<div class="col-xs-12 col-sm-4 text-center">
+					<h3 id="filter-sort-glyph" class="glyphicon glyphicon-sort-by-attributes-alt" style="vertical-align: bottom"></h3>
+					<div class="btn-group">
+						<button id="order-button" filtername="descending" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+							descending <span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu text-left" role="menu">
+							<li role="presentation" class="dropdown-header">order by:</li>
+							<li><a id="albums-order-desc" filtername="desc">descending</a></li>
+							<li><a id="albums-order-asc" filtername="asc">ascending</a></li>
+						</ul>
+					</div>
+				</div>
+			</div> <!-- sort row -->
+
+			<div id="albums-container"></div> <!-- for displaying album previews -->
+			<div id="albums-status" class="col-xs-12 text-center"></div> <!-- status of loaded albums -->
+		</div> <!-- /#page-albums -->
+
+		<!-- Albums page (singular) -->
+		<div id="page-album" style="display: none">
+			<div class="jumbotron" style="padding-bottom: 10px">
+				<div class="container">
+					<h1 class="title text-left" id="album-info-name">
+						album
+						<small>host</small>
+					</h1>
+
+					<div id="album-info-rerip" style="display: none"></div>
+					<table class="table table-condensed" id="album-info-table">
+						<tr>
+							<td class="album-key text-right" style="padding-right: 10px;">source:</td>
+							<td class="album-value text-left" id="album-info-source"></td>
+						</tr><tr>
+							<td class="album-key text-right" style="padding-right: 10px;">images:</td>
+							<td class="album-value text-left" id="album-info-size"></td>
+						</tr><tr>
+							<td class="album-key text-right" style="padding-right: 10px; vertical-align: middle">download:</td>
+							<td class="album-value text-left" id="album-info-download"></td>
+						</tr><tr>
+							<td class="album-key text-right" style="padding-right: 10px;">urls:</td>
+							<td class="album-value">
+								<button class="btn btn-primary btn-sm album-urls" id="album-info-urls-source">urls (source)</button>
+								<button class="btn btn-primary btn-sm album-urls" id="album-info-urls-rarchives">urls (rarchives)</button>
+							</td>
+						</tr><tr>
+							<td colspan="2" id="album-info-urls" style="display: none">
+								<textarea class="input-sm" id="album-info-urls-text" rows="20" style="width: 100%"></textarea>
+							</td>
+						</tr><tr>
+							<td class="album-key text-right" style="padding-right: 10px;">created:</td>
+							<td class="album-value text-left" id="album-info-created"></td>
+						</tr><tr>
+							<td class="album-key text-right" style="padding-right: 10px;"></td>
+							<td class="album-value text-left">
+								<button class="btn btn-sm btn-danger" id="album-report-drop" onclick="$(this).hide(); $('#album-report').slideDown(200)" type="button"><span class="glyphicon glyphicon-flag"></span> report this album</button>
+								<div class="col-xs-12 col-md-6" id="album-report" style="display: none">
+									<div class="input-group input-group-sm">
+										<span class="input-group-btn">
+											<button id="album-report-button" class="btn btn-danger" type="button">
+												<span class="glyphicon glyphicon-flag"></span>
+												<strong>report</strong>
+											</button>
+										</span>
+										<input type="text" id="album-report-text" class="form-control" placeholder="reason" autocomplete="off" value="">
+										<span class="input-group-btn">
+											<button type="button" onclick="$('#album-report').hide(); $('#album-report-drop').slideDown(200)" class="btn btn-primary"><span class="glyphicon glyphicon-remove"></span></button>
+										</span>
+									</div> <!-- /input-group -->
+								</div> <!-- /album-report -->
+							</td>
+						</tr>
+					</table>
+
+					<!-- admin functions -->
+					<table class="table table-condensed" id="admin-info-table" style="display: none">
+						<tr>
+							<td class="text-left" colspan="2">
+								<b>admin functions</b>
+							</td>
+						</tr><tr>
+							<td class="album-key text-right" style="padding-right: 10px;">album:</td>
+							<td class="album-value text-left" id="admin-album-area">
+								<button type="button" class="btn btn-xs btn-danger" id="admin-album-delete">
+									<span class="glyphicon glyphicon-trash"></span>
+									delete
+								</button>
+								<button type="button" class="btn btn-xs btn-danger" id="admin-album-blacklist">
+									<span class="glyphicon glyphicon-exclamation-sign"></span>
+									blacklist &amp; delete
+								</button>
+
+						</tr><tr>
+							<td class="album-key text-right" style="padding-right: 10px;">user:</td>
+							<td class="album-value text-left">
+								<span id="admin-info-user">127.0.0.1</span>
+
+								<button type="button" onclick="$('#admin-warn,#admin-ban').hide(); $('#admin-warn-form').slideDown(200)" class="btn btn-xs btn-warning" id="admin-warn">
+									<span class="glyphicon glyphicon-warning-sign"></span>
+									warn
+								</button>
+								<button type="button" onclick="$('#admin-warn,#admin-ban').hide(); $('#admin-ban-form').slideDown(200)" class="btn btn-xs btn-danger" id="admin-ban">
+									<span class="glyphicon glyphicon-ban-circle"></span>
+									ban
+								</button>
+								<div class="input-group input-group-sm" id="admin-warn-form" style="display: none">
+									<span class="input-group-btn">
+										<button id="album-warn-button" class="btn btn-warning" type="button">
+											<span class="glyphicon glyphicon-warning-sign"></span>
+											<strong>warn user</strong>
+										</button>
+									</span>
+									<input type="text" id="album-warn-text" class="form-control" placeholder="warning message" autocomplete="off" value="">
+									<span class="input-group-btn">
+										<button type="button" onclick="$('#admin-warn-form').hide(); $('#admin-warn,#admin-ban').slideDown(200)" class="btn btn-primary"><span class="glyphicon glyphicon-remove"></span></button>
+									</span>
+								</div> <!-- /input-group -->
+
+								<div class="input-group input-group-sm" id="admin-ban-form" style="display: none">
+									<span class="input-group-btn">
+										<button id="album-ban-button" class="btn btn-danger" type="button">
+											<span class="glyphicon glyphicon-ban-circle"></span>
+											<strong>ban user</strong>
+										</button>
+									</span>
+									<input type="text" id="album-ban-text" class="form-control" placeholder="ban message" autocomplete="off" value="">
+									<span class="input-group-btn">
+										<button type="button" onclick="$('#admin-ban-form').hide(); $('#admin-warn,#admin-ban').slideDown(200)" class="btn btn-primary"><span class="glyphicon glyphicon-remove"></span></button>
+									</span>
+								</div> <!-- /input-group -->
+
+							</td>
+						</tr><tr id="admin-info-banned">
+							<td class="album-key text-right" style="padding-right: 10px;">banned:</td>
+							<td class="album-value text-left text-danger" id="admin-info-banned-reason"></td>
+						</tr><tr id="admin-info-warned">
+							<td class="album-key text-right" style="padding-right: 10px;">warned:</td>
+							<td class="album-value text-left text-warning" id="admin-info-warned-reason"></td>
+						</tr><tr>
+							<td class="album-key text-right" style="padding-right: 10px;">number of rips:</td>
+							<td class="album-value text-left" id="admin-user-area">
+								<span id="admin-info-rip-count">0</span>
+								<button type="button" class="btn btn-xs btn-danger" id="admin-user-delete-all">
+									<span class="glyphicon glyphicon-trash"></span>
+									delete all
+								</button>
+								<button type="button" class="btn btn-xs btn-danger" id="admin-user-blacklist-all">
+									<span class="glyphicon glyphicon-exclamation-sign"></span>
+									blacklist &amp; delete all
+								</button>
+							</td>
+						</tr><tr>
+							<td class="album-key text-right" style="padding-right: 10px;">reports:</td>
+							<td class="album-value text-left text-danger" id="admin-info-reports"></td>
+						</tr>
+					</table>
+					<!-- /admin functions -->
+
+					<div id="album-progress-container" style="display: none">
+						<h2>ripping progress</h2>
+						<p>
+						<div class="progress progress-striped active">
+							<div class="progress-bar progress-bar-success" id="album-progressbar-completed"></div>
+							<div class="progress-bar progress-bar-warning" id="album-progressbar-pending"></div>
+							<div class="progress-bar progress-bar-danger"  id="album-progressbar-errored"></div>
+						</div>
+						<div class="container">
+							<div class="col-xs-12 col-sm-4 col-md-3">
+								<span class="album-progress-key text-success">completed:</span>
+								<span class="album-progress-value text-success" id="album-progress-completed"></span>
+							</div>
+							<div class="col-xs-12 col-sm-4 col-md-3">
+								<span class="album-progress-key text-warning">pending:</span>
+								<span class="album-progress-value text-warning" id="album-progress-pending"></span>
+							</div>
+							<div class="col-xs-12 col-sm-4 col-md-2">
+								<span class="album-progress-key text-danger">errored:</span>
+								<span class="album-progress-value text-danger" id="album-progress-errored"></span>
+							</div>
+							<div class="col-xs-12 col-sm-12 col-md-4">
+								<span class="album-progress-key">time elapsed:</span>
+								<span class="album-progress-value" id="album-progress-elapsed"></span>
+							</div>
+						</div>
+					</div> <!-- /container (progress) -->
+				</div> <!-- /container (album info) -->
+			</div> <!-- /jumbotron -->
+
+			<div id="album-image"></div> <!-- for displaying images from a single album -->
+			<div class="container" id="album-container"></div> <!-- For holding single album images-->
+			<div class="container" id="album-status"></div>    <!-- For status of single album -->
+		</div> <!-- /#page-album -->
+
+		<!-- Video ripper page -->
+		<div id="page-video" style="display: none">
+			<div class="jumbotron">
+				<div class="container text-center">
+					<h1 class="title"><span class="glyphicon glyphicon-film"></span><br> video ripper</h1>
+					<p class="text-center"> download videos hosted on various websites
+					<div class="input-group input-group-md">
+						<span class="input-group-btn">
+							<button id="button-rip-video" class="btn btn-primary" type="button">
+								<span class="glyphicon glyphicon-film"></span>
+								<strong>rip</strong>
+							</button>
+						</span>
+						<input type="text" id="text-rip-video" class="form-control" placeholder="http://www.xvideos.com/video1861562" autocomplete="off" value="">
+					</div> <!-- /input-group -->
+					<div class="statusbar" id="status-rip-video"></div>
+				</div> <!-- /container -->
+			</div> <!-- /jumbotron -->
+
+			<div class="container" id="video-info-container" style="display: none">
+				<h1 class="text-center" id="video-title">host <small>url</small></h1>
+				<div class="col-xs-12 col-lg-3">
+					<table cellpadding=5 style="margin-left: auto; margin-right: auto">
+						<tr>
+							<td colspan="2" class="text-center">
+								<a class="btn btn-xs btn-primary" id="video-info-url" style="padding: 10px !important; font-size: 1.8em"><span class="glyphicon glyphicon-download"></span> <b>download</b></a>
+								<div style="font-size: 0.8em; margin-top: 5px">(right-click, "Save as...")</div>
+							</td>
+						</tr><tr>
+							<td class="text-right">
+								<span ><b>size:</b></span>
+							</td><td class="text-left">
+								<span id="video-info-size">10.3mb</span>
+							</td>
+						</tr><tr>
+							<td class="text-right">
+								<span><b>type:</b></span>
+							</td><td class="text-left">
+								<span id="video-info-type">mp4</span>
+							</td>
+						</tr>
+					</table>
+				</div>
+
+				<div class="col-xs-12 col-lg-9 well" id="video-player-container">
+					<!-- Video to be inserted here -->
+				</div>
+				<hr>
+			</div>
+
+			<div class="container" id="supported-video-container">
+					<h2 class="text-center">supported sites</h2>
+					<div class="container text-center" id="supported-video">
+						<!-- To be populated iwth status_video.html via javascript -->
+					</div>
+			</div> <!-- /container -->
+		</div> <!-- /#page-video -->
+
+		<!-- Site stats page -->
+		<div id="page-stats" style="display: none">
+			<div class="jumbotron">
+				<div class="container text-center">
+					<h1 class="title"><span class="glyphicon glyphicon-stats"></span><br> site statistics</h1>
+				</div> <!-- /container -->
+			</div> <!-- /jumbotron -->
+			<div class="container">
+				TODO: stats
+			</div>
+		</div> <!-- /#page-stats -->
+
+		<!-- About: Site -->
+		<div id="page-about-site" style="display: none">
+			<div class="jumbotron">
+				<div class="container text-center">
+					<h1 class="title"><span class="glyphicon glyphicon-info-sign"></span><br> about this site</h1>
+				</div> <!-- /container -->
+			</div> <!-- /jumbotron -->
+			<div class="container">
+				<div class="col-xs-12">
+					<h1>what this site does</h1>
+					<p> the site downloads (or "rips") images and videos from other websites
+					<p> the site makes these rips easy to peruse and download as a single zipped file
+				</div>
+				<div class="col-xs-12">
+					<h1>why?</h1>
+					<p> sometimes you want a copy of some content but can't be bothered to right-click, save-as on every image/video
+				</div>
+				<div class="col-xs-12">
+					<h1>inception</h1>
+					<p> the first version of the site went up in September 2012 is still viewable at <b><u><a href="/v1">/v1</a></u></b>
+					<p> the site started out as an imgur album downloader (imgur has since installed this feature)
+				</div>
+				<div class="col-xs-12">
+					<h1>disable adblock</h1>
+					<p> there's no ads here. see for yourself.
+				</div>
+			</div>
+		</div> <!-- /#page-about-site -->
+
+		<!-- About: Terms of service -->
+		<div id="page-about-terms" style="display: none">
+			<div class="jumbotron">
+				<div class="container text-center">
+					<h1 class="title"><span class="glyphicon glyphicon-warning-sign"></span><br> terms of use</h1>
+					<p> follow these rules or you may get banned from the site
+				</div> <!-- /container -->
+			</div> <!-- /jumbotron -->
+
+			<div class="container">
+				<div class="col-xs-12">
+					<h1 style="color: #3f3"> <small>rule 0</small> report content</h1>
+					<p> reporting content that violates the rules below helps the admins and keeps the site safe for other users
+					<p> please report any albums that appear to violate these rules or any laws
+				</div>
+
+				<div class="col-xs-12">
+					<h1 class="text-danger"> <small>rule 1</small> no underage content</h1>
+					<p> any content containing minors (even drawn) is considered underage content and is grounds for a ban
+					<p> no jailbait galleries, teen models, or anything depecting persons under the age of 18 in a sexual or lascivious nature
+					<p> the admins know your IP address and will report violators to the <u><b><a target="_BLANK_NCMEC" href="http://www.cybertipline.org/">NCMEC</a></b></u>
+				</div>
+
+				<div class="col-xs-12">
+					<h1 class="text-danger"> <small>rule 2</small> no beastiality, violence, or shock imagery</h1>
+					<p> there's other sites for that kind of content. this isn't one of them.
+				</div>
+
+				<div class="col-xs-12">
+					<h1 class="text-danger"> <small>rule 3</small> do not abuse/overuse the site</h1>
+					<p> "abuse" is a loosely defined term and left to the admins' discretion.
+					<p> this includes making thousands of requests to the site in a short period of time
+					<ul style="padding-left: 80px;">
+						<li> it slows the site down and causes availability issues for other users.
+						<li> download managers are guilty of this.
+						<li> <b>don't use download managers to download content</b>
+					</ul>
+					<p> do not try to cirumvent the restrictions placed by admins.
+					<ul style="padding-left: 80px;">
+						<li> we can know when you change IP addresses.
+						<li> we'll ban your whole ISP if we have to.
+					</ul>
+					<p> do not use automated tools to download from the site
+					<ul style="padding-left: 80px;">
+						<li> again, the admins know when this happens. if you want access to the site's API, <u><b><a href="mailto:admin@rarchives.com">send an email to the admins</a></b></u>
+					</ul>
+				</div>
+			</div> <!-- /container -->
+		</div> <!-- /#page-about-tos -->
+
+		<!-- About: Removals -->
+		<div id="page-about-removal" style="display: none">
+			<div class="jumbotron">
+				<div class="container text-center">
+					<h1 class="title"><span class="glyphicon glyphicon-ban-circle"></span><br> content removal</h1>
+					<p> how to get content permanently removed from rip.rarchives
+				</div> <!-- /container -->
+			</div> <!-- /jumbotron -->
+			<div class="container">
+				<div class="col-xs-12">
+					<h1> <small>step 1</small> should it be removed?</h1>
+					<p> please see the site's <b><u><a href="#terms">terms of use</a></u></b> to understand what content should or should not be allowed
+					<p> if you are the copyright owner of the content, the admins will not hestitate to remove your content
+					<p>
+				</div>
+				<div class="col-xs-12">
+					<h1> <small>step 2</small> report</h1>
+					<p> report the album and let the admins why the content should be removed
+					<p> to report an album, go to the album and click:
+					<p> <button class="btn btn-sm btn-danger" type="button"><span class="glyphicon glyphicon-flag"></span> <b>report this album</b></button>
+					<p> enter the reason for removal and click 'report' to immediately let the admins know
+					<p> if you are the copyright owner, please say so in the report message
+				</div>
+				<div class="col-xs-12">
+					<h1> <small>step 3</small> email</h1>
+					<p> email the admins at <b><u><a href="mailto:admin@rarchives.com">admin@rarchives.com</a></u></b> and explain the situation
+				</div>
+				<div class="col-xs-12">
+					<h2> permanent removal</h2>
+					<p> the admins can permanently remove content from the site so that it cannot be ripped again
+				</div>
+			</div>
+		</div> <!-- /#page-about-removals -->
+
+		<!-- About: Source code -->
+		<div id="page-about-code" style="display: none">
+			<div class="jumbotron">
+				<div class="container text-center">
+					<h1 class="title"><span class="glyphicon glyphicon-globe"></span><br> open-source</h1>
+				</div> <!-- /container -->
+			</div> <!-- /jumbotron -->
+			<div class="container">
+				<h1>source code on github</h1>
+				<p> the website's source code is available <b><u><a href="https://github.com/4pr0n/rip3" target="_BLANK_source">here on github</a></u></b>
+				<p> backend is written in <b><u><a href="http://python.org/" target="_BLANK_python">Python</a></u></b> (2.7.x)
+				<p> frontend is built on <b><u><a href="http://getbootstrap.com/" target="_BLANK_bootstrap">Bootstrap</a></u></b> (3.0), <b><u><a href="http://jquery.com/" target="_BLANK_Jquery">JQuery</a></u></b> (2.x) 
+			</div>
+		</div> <!-- /#page-about-code -->
+
+		<!-- Footer -->
+		<div class="container">
+			<div class="col-xs-12">
+				<footer>
+					<p>&copy; rarchives 2014
+				</footer>
+			</div>
+		</div>
+
+		<script src="./ui/js/jquery-2.0.3.min.js"></script>
+		<script src="./ui/js/bootstrap.min.js"></script>
+		<script src="./ui/js/main.js"></script>
+
+	</body>
+</html>
+
